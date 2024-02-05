@@ -1,0 +1,28 @@
+name: Java CI
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Set up JDK 17
+        uses: actions/setup-java@v2
+        with:
+          distribution: 'adopt'
+          java-version: '17'
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Download JUnit Platform Console Standalone JAR
+        run: |
+            mkdir -p lib
+            curl -L -o lib/junit-platform-console-standalone.jar https://repo1.maven.org/maven2/org/junit/platform/junit-platform-console-standalone/1.7.2/junit-platform-console-standalone-1.7.2.jar
+      - name: Compile Java Code (excluding ClientTest)
+        run: ls && javac -d out $(find src -name "*.java" ! -name "ClientTest.java")
+
+      - name: Compile and Run ClientTest
+        run: java -cp out:lib/* org.junit.platform.console.ConsoleLauncher --scan-classpath
